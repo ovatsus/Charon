@@ -167,7 +167,7 @@ module DecisionTree =
     // construct a Map of existing values to integers (indexes),
     // an extractor function that converts an observation
     // to its mapped integer index.
-    let extract (feature: 'a -> string option) (data: 'a seq) =
+    let extract (feature: 'a -> 'label option) (data: 'a seq) =
         let map =
             data 
             |> Seq.choose (fun item -> feature item)
@@ -186,7 +186,7 @@ module DecisionTree =
         then dict.[value] <- index::dict.[value]
         else dict.Add(value, [index])
 
-    let private prepareLabels (labels: string option []) =
+    let private prepareLabels (labels: 'label option []) =
         let labelsMap, labelizer = labels |> extract id
         let reverseLabels = 
             labelsMap 
@@ -198,7 +198,7 @@ module DecisionTree =
         // but might do so later for diagnosis
         labelizer, predictor
 
-    let private prepareFeaturizer (observations: 'a seq) (fs: ('a -> string option) [])=
+    let private prepareFeaturizer (observations: 'a seq) (fs: ('a -> 'label option) [])=
         let featuresMap, featurizers =
             fs 
             |> Array.map (fun f -> observations |> extract f)
@@ -227,8 +227,8 @@ module DecisionTree =
         [| for feat in features -> feat |> Seq.map (fun kv -> kv.Key, List.rev kv.Value) |> Map.ofSeq |]
 
     // Create a full ID3 Classification Tree
-    let createID3Classifier (examples: (string option * 'a) []) 
-                            (fs: ('a -> string option)[]) 
+    let createID3Classifier (examples: ('label option * 'a) []) 
+                            (fs: ('a -> 'feature option)[]) 
                             (minLeaf: int) =
         // Unwrap labels and observations
         let labels, observations = Array.unzip examples
@@ -293,12 +293,12 @@ module DecisionTree =
         |> Seq.maxBy snd
         |> fst
 
-    let private forestDecide (trees: Tree []) (obs: 'a) (f: 'a -> int []) (l: int -> string) =
+    let private forestDecide (trees: Tree []) (obs: 'a) (f: 'a -> int []) (l: int -> 'label) =
         forestDecision trees (f obs) |> l
 
     // there is obvious duplication here with ID3, need to clean up
-    let createForestClassifier (examples: (string option * 'a) []) 
-                               (fs: ('a -> string option)[]) 
+    let createForestClassifier (examples: ('label option * 'a) []) 
+                               (fs: ('a -> 'feature option)[]) 
                                (minLeaf: int) 
                                (bagging: float)
                                (iters: int) 
