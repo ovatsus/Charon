@@ -6,18 +6,25 @@ module DecisionTree =
     open System
     open System.Collections.Generic
 
+    type To = 
+        | String of string
+        | Int of int
+        | Int64 of int64
+        | Bool of bool
+        | Decimal of decimal
+        | Float of float
+        static member Feature(x) = x |> Option.map String
+        static member Feature(x) = x |> Option.map Int
+        static member Feature(x) = x |> Option.map Int64
+        static member Feature(x) = x |> Option.map Bool
+        static member Feature(x) = x |> Option.map Decimal
+        static member Feature(x) = x |> Option.map Float
+
     // A feature maps the outcomes, encoded as integers,
     // to sorted observation indexes in the dataset.
     type Feature = Map<int, index>
     // Training Set = Labels and Features
     type TrainingSet = Feature * Feature []
-
-    //type Categorical<'a> = 'a -> string option
-
-    let StringCategory text =
-        if String.IsNullOrWhiteSpace(text)
-        then None
-        else Some(text)
 
     // A tree is either 
     // a Leaf (a final conclusion has been reached), or
