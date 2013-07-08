@@ -7,47 +7,28 @@ open Charon.DecisionTree
 open System
 open FSharp.Data
 
-// let's define a type for our observations
-type Passenger = {
-    Id: int
-    Class: int option
-    Name: string option
-    Sex: string option
-    Age: decimal option
-    SiblingsOrSpouse: int option
-    ParentsOrChildren: int option
-    Ticket: string option
-    Fare: decimal option
-    Cabin: string option
-    Embarked: string option }
-
-// now let's retrieve examples from the training CSV file
 // http://www.kaggle.com/c/titanic-gettingStarted/data
-let data = new CsvProvider<"train.csv",
+type DataSet = CsvProvider<"train.csv",
                            (* PassengerId is always present, but any one of the other columns might be missing*)
-                           Schema="PassengerId=int", SafeMode=true, PreferOptionals=true>() 
+                           Schema="Id (int),,Class,,,,SiblingsOrSpouse,ParentsOrChildren", SafeMode=true, PreferOptionals=true>
+
+type DataSet2 = CsvProvider<"train.csv",
+                            (* PassengerId is always present, but any one of the other columns might be missing*)
+                            Schema="Id (int),Pclass->Class,Parch->ParentsOrChildren,SibSp->SiblingsOrSpouse", SafeMode=true, PreferOptionals=true>
+
+type Passenger = DataSet.Row
 
 let trainingSet =
-    [| for line in data.Data -> 
-        line.Survived, // the label
-        {   Id = line.PassengerId 
-            Class = line.Pclass
-            Name = line.Name
-            Sex = line.Sex
-            Age = line.Age
-            SiblingsOrSpouse = line.SibSp
-            ParentsOrChildren = line.Parch
-            Ticket = line.Ticket
-            Fare = line.Fare
-            Cabin = line.Cabin
-            Embarked = line.Embarked } |]
+    use data = new DataSet()
+    [| for passenger in data.Data -> passenger.Survived, // the label
+                                     passenger |]
 
 // ID3 Decision Tree example
 let treeExample =
     
     // let's define what features we want included
     let features = 
-        [| fun x -> x.Sex |> To.Feature
+        [| fun (x:Passenger) -> x.Sex |> To.Feature
            fun x -> x.Class |> To.Feature |]
 
     // train the classifier
@@ -71,7 +52,7 @@ let forestExample =
         then "Kid"
         else "Adult"
 
-    let features = 
+    let features : (Passenger -> _) [] = 
         [| fun x -> x.Sex |> To.Feature
            fun x -> x.Class |> To.Feature
            fun x -> x.Age |> Option.map binnedAge |> To.Feature
