@@ -10,11 +10,11 @@ open FSharp.Data
 // http://www.kaggle.com/c/titanic-gettingStarted/data
 type DataSet = CsvProvider<"train.csv",
                            (* PassengerId is always present, but any one of the other columns might be missing*)
-                           Schema="Id (int),,Class,,,,SiblingsOrSpouse,ParentsOrChildren", SafeMode=true, PreferOptionals=true>
+                           Schema="int,,Class,,,,SiblingsOrSpouse,ParentsOrChildren", SafeMode=true, PreferOptionals=true>
 
 type DataSet2 = CsvProvider<"train.csv",
                             (* PassengerId is always present, but any one of the other columns might be missing*)
-                            Schema="Id (int),Pclass->Class,Parch->ParentsOrChildren,SibSp->SiblingsOrSpouse", SafeMode=true, PreferOptionals=true>
+                            Schema="PassengerId=int,Pclass->Class,Parch->ParentsOrChildren,SibSp->SiblingsOrSpouse", SafeMode=true, PreferOptionals=true>
 
 type Passenger = DataSet.Row
 
