@@ -253,10 +253,10 @@ module DecisionTree =
     let rec private plot (tree: Tree) 
                          (actives: int Set) 
                          (depth: int) 
-                         (predictor: int -> string)
-                         (reverseFeatures: Map<int,string>[]) =
+                         (predictor: int -> 'label)
+                         (reverseFeatures: Map<int,'feature>[]) =
         match tree with
-        | Leaf(x) -> printfn "%s -> %s" (pad actives depth) (predictor x)
+        | Leaf(x) -> printfn "%s -> %A" (pad actives depth) (predictor x)
         | Branch(f,d,next) ->        
             let last = next |> Map.toArray |> Array.length
             let fMap = reverseFeatures.[f]
@@ -272,38 +272,10 @@ module DecisionTree =
                     then "└" else "├"
                 match n with
                 | Leaf(z) -> 
-                    printfn "%s%s Feat %i = %s → %s" (pad actives depth) pipe f (fMap.[x]) (predictor z)
+                    printfn "%s%s Feat %i = %A → %A" (pad actives depth) pipe f (fMap.[x]) (predictor z)
                 | Branch(_) -> 
-                    printfn "%s%s Feat %i = %s" (pad actives' depth) pipe f (fMap.[x]) 
+                    printfn "%s%s Feat %i = %A" (pad actives' depth) pipe f (fMap.[x]) 
                     plot n (Set.add (depth + 1) actives') (depth + 1) predictor reverseFeatures)
-
-    let rec private plot2 (tree: Tree) 
-                         (actives: int Set) 
-                         (depth: int) 
-                         (predictor: int -> string)
-                         (reverseFeatures: Map<int,string>[]) =
-        match tree with
-        | Leaf(x) -> printfn "%s -> %s" (pad actives depth) (predictor x)
-        | Branch(f,d,next) ->        
-            let last = next |> Map.toArray |> Array.length
-            let fMap = reverseFeatures.[f]
-            next 
-            |> Map.toArray
-            |> Array.iteri (fun i (x, n) -> 
-                let actives' = 
-                    if (i = (last - 1)) 
-                    then Set.remove depth actives 
-                    else actives
-                let pipe = 
-                    if (i = (last - 1)) 
-                    then "└" else "├"
-                match n with
-                | Leaf(z) -> 
-                    printfn "%s%s Feat %i = %s → %s" (pad actives depth) pipe f (fMap.[x]) (predictor z)
-                | Branch(_) -> 
-                    printfn "%s%s Feat %i = %s" (pad actives' depth) pipe f (fMap.[x]) 
-                    plot n (Set.add (depth + 1) actives') (depth + 1) predictor reverseFeatures)
-
 
     // Draw the entire tree
     let render tree predictor reverseFeatures = 
