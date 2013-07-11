@@ -24,7 +24,7 @@ let trainingSet =
                                      passenger |]
 
 // ID3 Decision Tree example
-let treeExample =
+let treeExample () =
     
     // let's define what features we want included
     let features = 
@@ -44,7 +44,7 @@ let treeExample =
     printfn "Correct: %.4f" correct
 
 // Random Forest example
-let forestExample = 
+let forestExample () = 
 
     // let's define what features we want included
     let binnedAge age =
