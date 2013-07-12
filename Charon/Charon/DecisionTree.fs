@@ -205,7 +205,7 @@ module DecisionTree =
         // but might do so later for diagnosis
         labelizer, predictor
 
-    let private prepareFeaturizer (observations: 'a seq) (fs: ('a -> 'label option) [])=
+    let private prepareFeaturizer (observations: 'a seq) (fs: ('a -> 'feature option) [])=
         let featuresMap, featurizers =
             fs 
             |> Array.map (fun f -> observations |> extract f)
